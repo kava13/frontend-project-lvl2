@@ -1,0 +1,29 @@
+import path from 'path';
+import fs from 'fs';
+
+// Возвращает абсолютный путь к директории, из которой был вызван процесс (иначе говоря был вызван файл)
+export const getCurrentWorkingDirectory = () => {
+  return process.cwd();
+};
+
+// Возвращает абсолютный путь к файлу
+export const getFullPath = (filepath) => {
+  const processDirectory = getCurrentWorkingDirectory();
+
+  return path.resolve(processDirectory, filepath);
+};
+
+const getFileContent = (filepath) => {
+  const fullAbsolutePath = getFullPath(filepath);
+
+  return fs.readFileSync(fullAbsolutePath, 'utf8');
+};
+
+const genDiff = (pathToFile1, pathToFile2) => {
+  const content1 = getFileContent(pathToFile1);
+  console.log('content1: ', content1);
+  const content2 = getFileContent(pathToFile2);
+  console.log('content2: ', content2);
+};
+
+export default genDiff;

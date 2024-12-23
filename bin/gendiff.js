@@ -1,13 +1,22 @@
 #!/usr/bin/env node
-const { program } = require('commander');
+import { program } from 'commander';
+import genDiff from '../src/index.js';
 
-program.name('gendiff').description('  Compares two configuration files and shows a difference.');
+console.log('start');
 
+// Описание программы и версии
+program.name('gendiff').description('Compares two configuration files and shows a difference.').version('1.0.0');
+
+// Определение аргументов
 program
-  .argument('[filepath1]', 'First file to compare')
-  .argument('[filepath2]', 'Second file to compare')
-  .option('-V, --version', 'output the version number')
-  .option('-f, --format [type]', 'output format');
-//   .option('-h, --help', 'output usage information');
+  .argument('<filepath1>', 'First file to compare') // Первый файл
+  .argument('<filepath2>', 'Second file to compare'); // Второй файл
 
+// Опции, например, формат вывода
+program.option('-f, --format <type>', 'output format'); // Опция для выбора формата
+
+program.action((arg1, arg2) => {
+  genDiff(arg1, arg2);
+});
+// Разбор аргументов и опций
 program.parse();
