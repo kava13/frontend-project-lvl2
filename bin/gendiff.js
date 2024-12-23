@@ -16,7 +16,8 @@ program
 program.option('-f, --format <type>', 'output format'); // Опция для выбора формата
 
 program.action((arg1, arg2) => {
-  genDiff(arg1, arg2);
+  const result = genDiff(arg1, arg2);
+  console.log('result: ', result);
 });
 // Разбор аргументов и опций
 program.parse();
