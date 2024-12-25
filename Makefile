@@ -8,4 +8,4 @@ lint:
 	npx eslint .
 
 testing:
-	npm jest
+	npx jest
