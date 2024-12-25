@@ -18,6 +18,11 @@ test('gendiff', () => {
   const path4 = getFixturePath('file2.yml');
 
   expect(genDiff(path1, path2)).toEqual(readFixture('expected_diff.txt'));
-
   expect(genDiff(path3, path4)).toEqual(readFixture('expected_diff.txt'));
+
+  expect(genDiff(path1, path2, 'plain')).toEqual(readFixture('expected_diff_plain.txt'));
+  expect(genDiff(path3, path4, 'plain')).toEqual(readFixture('expected_diff_plain.txt'));
+
+  expect(genDiff(path1, path2, 'json')).toEqual(readFixture('expected_diff_json.txt'));
+  expect(genDiff(path3, path4, 'json')).toEqual(readFixture('expected_diff_json.txt'));
 });
