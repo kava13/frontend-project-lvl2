@@ -20,5 +20,6 @@ jobs:
 
       - name: Kava project check
         run: |
+          make install 
           make lint
           make testing
