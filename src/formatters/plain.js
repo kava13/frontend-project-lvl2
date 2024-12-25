@@ -1,36 +1,42 @@
 import _ from 'lodash';
 
-const stringify = (value) => {
-  if (_.isObject(value)) {
-    return '[complex value]';
+const stringifyValue = (value) => {
+  switch (typeof value) {
+    case 'object':
+      return value === null ? value : '[complex value]';
+    case 'string':
+      return `'${value}'`;
+    default:
+      return `${value}`;
   }
-
-  return _.isString(value) ? `'${value}'` : value;
 };
 
-const makePlain = (diff) => {
-  const iter = (tree, parent) =>
-    tree.flatMap((node) => {
-      const path = [...parent, node.key].join('.');
-
-      switch (node.state) {
-        case 'added':
-          return `Property '${path}' was added with value: ${stringify(node.value)}`;
-        case 'deleted':
-          return `Property '${path}' was removed`;
-        case 'notChanged':
-          return [];
-        case 'changed':
-          return `Property '${path}' was updated. From ${stringify(node.value1)} to ${stringify(node.value2)}`;
-        case 'nested':
-          return `${iter(node.value, [path]).join('\n')}`;
+const getPlain = (obj) => {
+  const getPath = (data) => data.flat().join('.');
+  const genResult = (data, path) =>
+    data.map((key) => {
+      const currentPath = getPath([path, key.key]);
+      switch (key.action) {
+        case 'Nested':
+          return genResult(key.value, currentPath);
+        case 'Delete':
+          return `Property '${currentPath}' was removed`;
+        case 'Added':
+          return `Property '${currentPath}' was added with value: ${stringifyValue(key.value)}`;
+        case 'Edit':
+          return `Property '${currentPath}' was updated. From ${stringifyValue(key.value)} to ${stringifyValue(key.value2)}`;
+        case 'Unchanged':
+          return null;
         default:
-          throw new Error(`Type: ${node.state} is undefined`);
+          return '';
       }
     });
-
-  const plainDiff = iter(diff, []);
-  return [...plainDiff].join('\n');
+  return genResult(obj, []);
 };
-
+const makePlain = (data) => {
+  const result = getPlain(data);
+  const flatten = _.flattenDeep(result);
+  const filtered = flatten.filter((el) => el);
+  return filtered.join('\n');
+};
 export default makePlain;

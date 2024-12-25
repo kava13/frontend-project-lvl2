@@ -1,49 +1,43 @@
 import _ from 'lodash';
 
-const stringify = (data, depth, replacer) => {
-  if (!_.isObject(data)) {
-    return `${data}`;
+const signs = {
+  added: '+ ',
+  deleted: '- ',
+  spase: '  ',
+};
+
+const replacer = ' ';
+const spacesCount = 4;
+const genIdentationString = (depth) => replacer.repeat(spacesCount * depth - 2);
+const braceIndent = (depth) => replacer.repeat(spacesCount * depth - spacesCount);
+const stringifyValue = (value, depth = 1) => {
+  if (!_.isObject(value)) {
+    return value;
   }
-
-  const indentForKey = replacer.repeat(depth + 1);
-  const indentForBracket = replacer.repeat(depth);
-  const lines = Object.entries(data).map(([key, value]) => `${indentForKey}${key}: ${stringify(value, depth + 1, replacer)}`);
-
-  return ['{', ...lines, `${indentForBracket}}`].join('\n');
+  const line = _.keys(value).map((key) => `${genIdentationString(depth)}  ${key}: ${stringifyValue(value[key], depth + 1)}`);
+  return `{\n${line.join('\n')}\n${braceIndent(depth)}}`;
 };
 
-const sign = {
-  added: '+',
-  deleted: '-',
-  unchanged: ' ',
-};
-
-const makeStylish = (diff, replacer = '    ') => {
-  const iter = (tree, depth) =>
-    tree.map((node) => {
-      const indent = replacer.repeat(depth);
-      const indentForSign = indent.slice(2);
-
-      const makeLine = (value, mark) => `${indentForSign}${mark} ${node.key}: ${stringify(value, depth, replacer)}`;
-
-      switch (node.state) {
-        case 'added':
-          return makeLine(node.value, sign.added);
-        case 'deleted':
-          return makeLine(node.value, sign.deleted);
-        case 'notChanged':
-          return makeLine(node.value, sign.unchanged);
-        case 'changed':
-          return [`${makeLine(node.value1, sign.deleted)}`, `${makeLine(node.value2, sign.added)}`].join('\n');
-        case 'nested':
-          return `${indent}${node.key}: ${['{', ...iter(node.value, depth + 1), `${indent}}`].join('\n')}`;
+const getStylish = (diffTree) => {
+  const iter = (innerTree, level = 1) => {
+    const result = innerTree.map((key) => {
+      switch (key.action) {
+        case 'Delete':
+          return `${genIdentationString(level)}${signs.deleted}${key.key}: ${stringifyValue(key.value, level + 1)}`;
+        case 'Added':
+          return `${genIdentationString(level)}${signs.added}${key.key}: ${stringifyValue(key.value, level + 1)}`;
+        case 'Edit':
+          return `${genIdentationString(level)}${signs.deleted}${key.key}: ${stringifyValue(key.value, level + 1)}\n${genIdentationString(
+            level
+          )}${signs.added}${key.key}: ${stringifyValue(key.value2, level + 1)}`;
+        case 'Nested':
+          return `${genIdentationString(level)}${signs.spase}${key.key}: ${iter(key.value, level + 1)}`;
         default:
-          throw new Error(`Type: ${node.state} is undefined`);
+          return `${genIdentationString(level)}${signs.spase}${key.key}: ${stringifyValue(key.value, level + 1)}`;
       }
     });
-
-  const stylishDiff = iter(diff, 1);
-  return ['{', ...stylishDiff, '}'].join('\n');
+    return ['{', ...result, `${braceIndent(level)}}`].join('\n');
+  };
+  return iter(diffTree);
 };
-
-export default makeStylish;
+export default getStylish;
