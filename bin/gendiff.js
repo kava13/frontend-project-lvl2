@@ -13,7 +13,7 @@ program
   .argument('<filepath2>', 'Second file to compare'); // Второй файл
 
 // Опции, например, формат вывода
-program.option('-f, --format <type>', 'output format'); // Опция для выбора формата
+program.option('-f, --format <type>', 'output format', 'stylish'); // Опция для выбора формата
 
 program.action((arg1, arg2) => {
   const result = genDiff(arg1, arg2);

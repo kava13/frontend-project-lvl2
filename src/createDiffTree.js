@@ -1,44 +1,29 @@
 import _ from 'lodash';
 
-export const createDiffTree = (obj1, obj2) => {
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
+export const createDiffTree = (file1, file2) => {
+  const file1Keys = _.keys(file1);
+  const file2Keys = _.keys(file2);
+  const sortedKeys = _.sortBy(_.union(file1Keys, file2Keys));
 
-  // Слияние всех ключей из двух объектов и сортировка
-  const allKeys = _.sortBy([...keys1, ...keys2.filter((key) => !keys1.includes(key))]);
-
-  const result = ['{']; // Открываем фигурные скобки
-
-  allKeys.forEach((key) => {
-    const value1 = obj1[key];
-    const value2 = obj2[key];
-
-    // Если ключ есть только в первом объекте
-    if (key in obj1 && !(key in obj2)) {
-      result.push(`- ${key}: ${value1}`);
-      return;
+  return sortedKeys.map((key) => {
+    if (!_.has(file1, key)) {
+      return { key, state: 'added', value: file2[key] };
+    }
+    if (!_.has(file2, key)) {
+      return { key, state: 'deleted', value: file1[key] };
+    }
+    if (_.isObject(file1[key]) && _.isObject(file2[key])) {
+      return { key, state: 'nested', value: createDiffTree(file1[key], file2[key]) };
+    }
+    if (!_.isEqual(file1[key], file2[key])) {
+      return {
+        key,
+        state: 'changed',
+        value1: file1[key],
+        value2: file2[key],
+      };
     }
 
-    // Если ключ есть только во втором объекте
-    if (!(key in obj1) && key in obj2) {
-      result.push(`+ ${key}: ${value2}`);
-      return;
-    }
-
-    // Если значения равны, оставляем unchanged
-    if (value1 === value2) {
-      result.push(`  ${key}: ${value1}`);
-      return;
-    }
-
-    // Если значения отличаются, выводим как changed
-    if (value1 !== value2) {
-      result.push(`- ${key}: ${value1}`);
-      result.push(`+ ${key}: ${value2}`);
-    }
+    return { key, state: 'notChanged', value: file1[key] };
   });
-
-  result.push('}'); // Закрываем фигурные скобки
-
-  return result.join('\n');
 };
