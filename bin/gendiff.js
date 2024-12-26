@@ -15,6 +15,8 @@ program.option('-f, --format [type]', 'output format', 'stylish'); // Опция
 
 program.action((arg1, arg2) => {
   const result = genDiff(arg1, arg2, program.opts().format);
+
+  // eslint-disable-next-line no-console
   console.log(result);
 });
 // Разбор аргументов и опций

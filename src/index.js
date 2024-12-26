@@ -1,10 +1,11 @@
-import { createDiffTree } from './createDiffTree.js';
 import path from 'path';
 import fs from 'fs';
 import yaml from 'js-yaml';
+import createDiffTree from './createDiffTree.js';
 import formatOutput from './formatters/index.js';
 
-// Возвращает абсолютный путь к директории, из которой был вызван процесс (иначе говоря был вызван файл)
+// Возвращает абсолютный путь к директории, из которой был вызван процесс
+// eslint-disable-next-line arrow-body-style
 const getCurrentWorkingDirectory = () => {
   return process.cwd();
 };
@@ -22,18 +23,14 @@ const getFileContent = (filepath) => {
   return fs.readFileSync(fullAbsolutePath, 'utf8');
 };
 
-const getExtension = (filename) => {
-  return path.extname(filename);
-};
+const getExtension = (filename) => path.extname(filename);
 
 const getParseFn = (extension) => {
-  if (extension === '.json') {
-    return JSON.parse;
-  }
-
   if (extension === '.yml' || extension === '.yaml') {
     return yaml.load;
   }
+
+  return JSON.parse;
 };
 
 const genDiff = (pathToFile1, pathToFile2, format = 'stylish') => {

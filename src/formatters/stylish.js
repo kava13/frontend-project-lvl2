@@ -28,7 +28,7 @@ const getStylish = (diffTree) => {
           return `${genIdentationString(level)}${signs.added}${key.key}: ${stringifyValue(key.value, level + 1)}`;
         case 'Edit':
           return `${genIdentationString(level)}${signs.deleted}${key.key}: ${stringifyValue(key.value, level + 1)}\n${genIdentationString(
-            level
+            level,
           )}${signs.added}${key.key}: ${stringifyValue(key.value2, level + 1)}`;
         case 'Nested':
           return `${genIdentationString(level)}${signs.spase}${key.key}: ${iter(key.value, level + 1)}`;

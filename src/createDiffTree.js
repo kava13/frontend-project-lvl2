@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-export const createDiffTree = (obj1, obj2) => {
+const createDiffTree = (obj1, obj2) => {
   const allKeys = _.sortBy(_.uniq([...Object.keys(obj1), ...Object.keys(obj2)])).map((key) => {
     const value1 = obj1[key];
     const value2 = obj2[key];
@@ -44,3 +44,5 @@ export const createDiffTree = (obj1, obj2) => {
   });
   return allKeys;
 };
+
+export default createDiffTree;

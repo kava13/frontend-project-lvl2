@@ -13,24 +13,23 @@ const stringifyValue = (value) => {
 
 const getPlain = (obj) => {
   const getPath = (data) => data.flat().join('.');
-  const genResult = (data, path) =>
-    data.map((key) => {
-      const currentPath = getPath([path, key.key]);
-      switch (key.action) {
-        case 'Nested':
-          return genResult(key.value, currentPath);
-        case 'Delete':
-          return `Property '${currentPath}' was removed`;
-        case 'Added':
-          return `Property '${currentPath}' was added with value: ${stringifyValue(key.value)}`;
-        case 'Edit':
-          return `Property '${currentPath}' was updated. From ${stringifyValue(key.value)} to ${stringifyValue(key.value2)}`;
-        case 'Unchanged':
-          return null;
-        default:
-          return '';
-      }
-    });
+  const genResult = (data, path) => data.map((key) => {
+    const currentPath = getPath([path, key.key]);
+    switch (key.action) {
+      case 'Nested':
+        return genResult(key.value, currentPath);
+      case 'Delete':
+        return `Property '${currentPath}' was removed`;
+      case 'Added':
+        return `Property '${currentPath}' was added with value: ${stringifyValue(key.value)}`;
+      case 'Edit':
+        return `Property '${currentPath}' was updated. From ${stringifyValue(key.value)} to ${stringifyValue(key.value2)}`;
+      case 'Unchanged':
+        return null;
+      default:
+        return '';
+    }
+  });
   return genResult(obj, []);
 };
 const makePlain = (data) => {
